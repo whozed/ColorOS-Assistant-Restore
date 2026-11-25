@@ -1,5 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ColorOS 唤语</string>
-    <string name="module_description">在 ColorOS 国内版上还原 AOSP 数字助理行为：长按电源键、长按手势条、屏幕底部角落内滑均唤醒系统当前设置的默认助理应用。</string>
+    <!-- App & Navigation -->
+    <string name="app_name">ColorOS Assistant Restore</string>
+    <string name="module_description">Restores AOSP digital assistant gestures on China-region ColorOS builds: long-press power button, long-press gesture bar, and bottom-corner swipe each wake your chosen assistant.</string>
+    <string name="cd_navigate_back">Back</string>
+    <string name="nav_entries">Triggers</string>
+    <string name="nav_advanced">Advanced</string>
+
+    <!-- Entries Home -->
+    <string name="entry_power_long_press">Power button</string>
+    <string name="entry_gesture_handle">Gesture bar</string>
+    <string name="entry_corner_swipe">Corner swipe</string>
+    <string name="status_module_active">Module active</string>
+    <string name="status_module_inactive">Module inactive</string>
+    <string name="status_scopes_mounted">4 scopes hooked</string>
+    <string name="status_xposed_disconnected">Xposed service disconnected</string>
+    <string name="card_default_assistant_hint">Default assistant · Tap for settings</string>
+    <string name="section_wake_entries">Wake triggers</string>
+    <string name="master_switch_title">Enable module for all triggers</string>
+    <string name="master_switch_subtitle">When off, all three triggers revert to stock ColorOS behavior</string>
+    <string name="summary_follow_default">Current: System default · %1$s</string>
+    <string name="summary_circle_to_search">Current: Circle to Search</string>
+    <string name="summary_app">Current: %1$s</string>
+    <string name="summary_custom">Current: Custom · %1$s</string>
+    <string name="summary_oem">Current: Breeno Screen Recognition (Stock ColorOS)</string>
+    <string name="summary_none">Current: Disabled (wake nothing)</string>
+
+    <!-- Wake Target -->
+    <string name="title_wake_target">Wake target</string>
+    <string name="target_select_prompt">Choose what this trigger wakes</string>
+    <string name="target_follow_default_title">Follow system default assistant</string>
+    <string name="target_follow_default_subtitle">System default: %1$s</string>
+    <string name="target_cts_title">Circle to Search</string>
+    <string name="target_cts_subtitle">Uses the system CTS service regardless of default assistant</string>
+    <string name="target_oem_ocr_title">Breeno Screen Recognition</string>
+    <string name="target_oem_ocr_subtitle">No interception: ColorOS keeps handling gesture bar long-press</string>
+    <string name="target_breeno_title">Breeno Assistant</string>
+    <string name="target_breeno_subtitle">ACTION_ASSIST only — launches the stock Breeno Assistant directly</string>
+    <string name="target_other_app_title">Other app…</string>
+    <string name="target_other_app_subtitle">Enter a package name or service component manually</string>
+    <string name="target_footer_note">Each trigger stores its own target. Turning all options off disables this trigger completely, including stock ColorOS behavior.</string>
+    <string name="target_corner_reboot_note">Corner-swipe changes require a reboot for the launcher to update; the gesture animation may remain until reboot.</string>
+
+    <!-- Custom Target -->
+    <string name="title_custom_target">Custom target</string>
+    <string name="method_auto">Auto</string>
+    <string name="method_explicit_intent">Explicit Intent</string>
+    <string name="custom_paste_json_label">Paste Intent JSON</string>
+    <string name="custom_paste_json_hint">Paste the Intent JSON snippet from an app inspector and tap below to auto-fill</string>
+    <string name="btn_parse_and_fill">Parse &amp; fill</string>
+    <string name="field_package_name">Package name</string>
+    <string name="field_package_example">e.g. com.heytap.speechassist</string>
+    <string name="field_service_component">Service component</string>
+    <string name="field_method_hint">Auto: prefers the app’s declared assistant activity. Explicit Intent: launches using the component and parameters below.</string>
+    <string name="field_intent_args">Intent parameters</string>
+    <string name="btn_save_target">Save target</string>
+
+    <!-- Advanced -->
+    <string name="adv_skip_ocr_title">Skip screen-recognition pre-bind</string>
+    <string name="adv_skip_ocr_subtitle">Stops pre-binding Breeno Screen Recognition when holding the gesture bar</string>
+    <string name="adv_unblock_page_title">Unblock page-level gestures</string>
+    <string name="adv_unblock_page_subtitle">Allows corner swipe on restricted pages such as Settings</string>
+    <string name="adv_unblock_page_android17">Unavailable on Android 17+ — system no longer applies page-level blocks</string>
+    <string name="adv_spoof_google_title">Spoof Google app device model</string>
+    <string name="adv_spoof_google_subtitle">Reports SM-S928B inside the Google app to unlock Circle to Search</string>
+    <string name="adv_keep_handle_hidden_title">Keep long-press with hidden bar</string>
+    <string name="adv_keep_handle_hidden_subtitle">Long-pressing the bottom area still wakes the assistant when the gesture bar is hidden</string>
+    <string name="adv_wallet_title">Double-press power for Google Wallet</string>
+    <string name="adv_wallet_subtitle">Opens the system Quick Access Wallet (Google Wallet) instead of ColorOS Wallet. Keep system double-press quick service enabled.</string>
+    <string name="adv_hide_icon_title">Hide launcher icon</string>
+    <string name="adv_hide_icon_subtitle">When hidden, open this app from LSPosed or System App Info</string>
+
+    <!-- Toasts & System -->
+    <string name="toast_corner_reboot">Saved: reboot required for the launcher to refresh corner-swipe availability</string>
+    <string name="toast_icon_hidden">Launcher icon hidden. You can still open this app from LSPosed or System App Info.</string>
+    <string name="toast_icon_shown">Launcher icon restored</string>
+    <string name="toast_no_assistant_settings">No system assistant settings page available</string>
+    <string name="snack_json_invalid">Could not parse JSON — check the format</string>
+    <string name="snack_json_filled">Fields filled — review and tap \"Save target\"</string>
+    <string name="snack_saved_custom">Saved: trigger set to custom target</string>
+    <string name="snack_saved_prefix">Saved: </string>
+    <string name="assist_detail_vis">Assistant supported · Voice Interaction Service</string>
+    <string name="assist_detail_action_only">ACTION_ASSIST activity only</string>
+    <string name="default_assistant_unset">Not set</string>
 </resources>

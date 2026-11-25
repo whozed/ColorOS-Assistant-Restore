@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable
 import android.provider.Settings
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import io.github.andrea_lyz.assistrestore.R
 
 /** One application the system offers for the assistant role. */
 data class AssistantApp(
@@ -47,12 +48,12 @@ data class AssistantSnapshot(
 
             runCatching {
                 pm.queryIntentServices(Intent(VIS_ACTION), 0).forEach { resolved ->
-                    resolved.serviceInfo?.packageName?.let { add(it, "支持助理 · 语音交互服务") }
+                    resolved.serviceInfo?.packageName?.let { add(it, context.getString(R.string.assist_detail_vis)) }
                 }
             }
             runCatching {
                 pm.queryIntentActivities(Intent(ASSIST_ACTION), 0).forEach { resolved ->
-                    resolved.activityInfo?.packageName?.let { add(it, "只有 ACTION_ASSIST") }
+                    resolved.activityInfo?.packageName?.let { add(it, context.getString(R.string.assist_detail_action_only)) }
                 }
             }
 
@@ -66,7 +67,7 @@ data class AssistantSnapshot(
             val defaultLabel = defaultPackage?.let { pkg ->
                 runCatching { pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString() }
                     .getOrNull()
-            } ?: "未设置"
+            } ?: context.getString(R.string.default_assistant_unset)
             val defaultIcon = defaultPackage?.let { pkg ->
                 runCatching { pm.getApplicationIcon(pkg).rasterize(iconPx) }.getOrNull()
             }

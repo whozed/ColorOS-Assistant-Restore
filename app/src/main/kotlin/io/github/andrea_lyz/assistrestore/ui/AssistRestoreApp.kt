@@ -103,9 +103,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.andrea_lyz.assistrestore.AssistConfig
+import io.github.andrea_lyz.assistrestore.R
 import io.github.libxposed.service.XposedService
 import kotlinx.coroutines.launch
 import androidx.lifecycle.Lifecycle
@@ -115,7 +117,11 @@ import androidx.lifecycle.LifecycleEventObserver
 /* Preview data                                                                                   */
 /* --------------------------------------------------------------------------------------------- */
 
-private val ENTRY_NAMES = listOf("长按电源键", "长按手势条", "底角内滑")
+private val ENTRY_NAME_RES = listOf(
+    R.string.entry_power_long_press,
+    R.string.entry_gesture_handle,
+    R.string.entry_corner_swipe,
+)
 
 /** Entry identifiers as stored in the configuration, in the same order as [ENTRY_NAMES]. */
 /** The OEM assistant: it declares no voice interaction service, so it is started as an activity. */
@@ -287,7 +293,7 @@ fun AssistRestoreApp() {
     val rebootHint: () -> Unit = {
         Toast.makeText(
             context,
-            "已保存：底角那项要重启手机后桌面才会重新判断，之前可能仍保留手势动画",
+            context.getString(R.string.toast_corner_reboot),
             Toast.LENGTH_LONG,
         ).show()
     }
@@ -298,9 +304,9 @@ fun AssistRestoreApp() {
         Toast.makeText(
             context,
             if (hidden) {
-                "已隐藏桌面图标：仍可从 LSPosed 模块页或系统设置的应用详情打开本应用"
+                context.getString(R.string.toast_icon_hidden)
             } else {
-                "已重新显示桌面图标"
+                context.getString(R.string.toast_icon_shown)
             },
             Toast.LENGTH_LONG,
         ).show()
@@ -348,7 +354,7 @@ fun AssistRestoreApp() {
             runCatching { context.startActivity(intent) }.isSuccess
         }
         if (!opened) {
-            Toast.makeText(context, "系统里没有可打开的助理设置页", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.toast_no_assistant_settings), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -489,7 +495,7 @@ private fun AppTopBar(
         ) {
             if (onBack != null) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Rounded.ArrowBack, contentDescription = "返回")
+                    Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.cd_navigate_back))
                 }
             } else {
                 Spacer(Modifier.width(12.dp))
@@ -513,8 +519,8 @@ private fun AppTopBar(
 private fun AppBottomBar(selected: Int, onSelect: (Int) -> Unit) {
     NavigationBar {
         listOf(
-            Triple("入口", Icons.Rounded.TouchApp, 0),
-            Triple("高级", Icons.Rounded.Settings, 1),
+            Triple(stringResource(R.string.nav_entries), Icons.Rounded.TouchApp, 0),
+            Triple(stringResource(R.string.nav_advanced), Icons.Rounded.Settings, 1),
         ).forEach { (label, icon, index) ->
             NavigationBarItem(
                 selected = selected == index,
@@ -670,7 +676,7 @@ private fun EntriesScreen(
     onSelectTab: (Int) -> Unit,
 ) {
     AppScreen(
-        title = "ColorOS 唤语",
+        title = stringResource(R.string.app_name),
         snackbarHost = snackbarHost,
         bottomBar = { AppBottomBar(selectedTab, onSelectTab) },
     ) { modifier ->
@@ -694,27 +700,27 @@ private fun EntriesScreen(
             }
 
             Spacer(Modifier.height(24.dp))
-            Text("唤醒入口", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.section_wake_entries), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
 
             SectionCard {
-                ENTRY_NAMES.forEachIndexed { index, name ->
+                ENTRY_NAME_RES.forEachIndexed { index, nameRes ->
                     ListRow(
-                        title = name,
+                        title = stringResource(nameRes),
                         subtitle = describeChoice(choices[index], snapshot),
                         icon = ENTRY_ICONS[index],
                         trailing = { Chevron() },
                         onClick = { onOpenTarget(index) },
                     )
-                    if (index != ENTRY_NAMES.lastIndex) RowDivider()
+                    if (index != ENTRY_NAME_RES.lastIndex) RowDivider()
                 }
             }
 
             Spacer(Modifier.height(16.dp))
             SectionCard {
                 ListRow(
-                    title = "模块接管全部入口",
-                    subtitle = "关闭后三个入口都回到 ColorOS 原始行为",
+                    title = stringResource(R.string.master_switch_title),
+                    subtitle = stringResource(R.string.master_switch_subtitle),
                     icon = Icons.Rounded.Tune,
                     trailing = { Toggle(masterEnabled, onMasterChange) },
                 )
@@ -768,7 +774,7 @@ private fun ModuleStatusCard(
                     .padding(20.dp),
             ) {
                 Text(
-                    text = if (active) "模块已生效" else "模块未生效",
+                    text = stringResource(if (active) R.string.status_module_active else R.string.status_module_inactive),
                     style = MaterialTheme.typography.titleMedium,
                     color = contentColor,
                     maxLines = 2,
@@ -776,7 +782,7 @@ private fun ModuleStatusCard(
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    text = if (active) "4 个作用域已挂载" else "未连接 Xposed 服务",
+                    text = stringResource(if (active) R.string.status_scopes_mounted else R.string.status_xposed_disconnected),
                     style = MaterialTheme.typography.bodySmall,
                     color = contentColor.copy(alpha = 0.8f),
                 )
@@ -838,7 +844,7 @@ private fun AssistantCard(
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    text = "当前默认助理 · 点按打开设置",
+                    text = stringResource(R.string.card_default_assistant_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = contentColor.copy(alpha = 0.8f),
                 )
@@ -847,17 +853,19 @@ private fun AssistantCard(
     }
 }
 
+@Composable
 private fun describeChoice(choice: TargetChoice, snapshot: AssistantSnapshot): String =
     when (choice) {
-        TargetChoice.FollowDefault -> "当前：跟随系统默认助理 · ${snapshot.defaultLabel}"
-        TargetChoice.CircleToSearch -> "当前：一圈即搜"
-        is TargetChoice.App -> "当前：" + (
+        TargetChoice.FollowDefault -> stringResource(R.string.summary_follow_default, snapshot.defaultLabel)
+        TargetChoice.CircleToSearch -> stringResource(R.string.summary_circle_to_search)
+        is TargetChoice.App -> stringResource(
+            R.string.summary_app,
             snapshot.apps.firstOrNull { it.packageName == choice.packageName }?.label
-                ?: choice.packageName
-            )
-        is TargetChoice.Custom -> "当前：自定义 · " + choice.packageName
-        TargetChoice.Oem -> "当前：小布识屏（ColorOS 原生）"
-        TargetChoice.None -> "当前：不唤醒助理"
+                ?: choice.packageName,
+        )
+        is TargetChoice.Custom -> stringResource(R.string.summary_custom, choice.packageName)
+        TargetChoice.Oem -> stringResource(R.string.summary_oem)
+        TargetChoice.None -> stringResource(R.string.summary_none)
     }
 
 /* --------------------------------------------------------------------------------------------- */
@@ -878,19 +886,19 @@ private fun TargetScreen(
     cornerHintVisible: Boolean,
     snackbarHost: SnackbarHostState,
 ) {
-    AppScreen(title = "唤醒目标", snackbarHost = snackbarHost, onBack = onBack) { modifier ->
+    AppScreen(title = stringResource(R.string.title_wake_target), snackbarHost = snackbarHost, onBack = onBack) { modifier ->
         Column(modifier.padding(horizontal = 16.dp)) {
             Spacer(Modifier.height(8.dp))
 
             // Single choice: the tab switches which entry is being configured.
             TabRow(selectedTabIndex = entryIndex) {
-                ENTRY_NAMES.forEachIndexed { index, name ->
+                ENTRY_NAME_RES.forEachIndexed { index, nameRes ->
                     Tab(
                         selected = index == entryIndex,
                         onClick = { onSelectEntry(index) },
                         text = {
                             Text(
-                                text = name,
+                                text = stringResource(nameRes),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
@@ -900,13 +908,13 @@ private fun TargetScreen(
             }
 
             Spacer(Modifier.height(16.dp))
-            Text("选择这个入口要唤醒谁", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.target_select_prompt), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
 
             SectionCard {
                 ListRow(
-                    title = "跟随系统默认助理",
-                    subtitle = "当前系统默认：${snapshot.defaultLabel}",
+                    title = stringResource(R.string.target_follow_default_title),
+                    subtitle = stringResource(R.string.target_follow_default_subtitle, snapshot.defaultLabel),
                     icon = Icons.Rounded.SettingsVoice,
                     trailing = {
                         Toggle(
@@ -917,8 +925,8 @@ private fun TargetScreen(
                 )
                 RowDivider()
                 ListRow(
-                    title = "一圈即搜",
-                    subtitle = "走系统 CTS 服务，不跟随默认助理设置",
+                    title = stringResource(R.string.target_cts_title),
+                    subtitle = stringResource(R.string.target_cts_subtitle),
                     icon = Icons.Rounded.Search,
                     trailing = {
                         Toggle(
@@ -930,8 +938,8 @@ private fun TargetScreen(
                 if (oemOptionVisible) {
                     RowDivider()
                     ListRow(
-                        title = "小布识屏",
-                        subtitle = "不接管：长按手势条仍由 ColorOS 自己处理",
+                        title = stringResource(R.string.target_oem_ocr_title),
+                        subtitle = stringResource(R.string.target_oem_ocr_subtitle),
                         icon = Icons.Rounded.Tune,
                         trailing = {
                             Toggle(
@@ -948,8 +956,8 @@ private fun TargetScreen(
             SectionCard {
                 if (breenoOptionVisible) {
                     ListRow(
-                        title = "小布助手",
-                        subtitle = "只有 ACTION_ASSIST 活动，直接唤起小布助手本体",
+                        title = stringResource(R.string.target_breeno_title),
+                        subtitle = stringResource(R.string.target_breeno_subtitle),
                         icon = Icons.Rounded.SettingsVoice,
                         trailing = {
                             Toggle(
@@ -968,8 +976,8 @@ private fun TargetScreen(
                     RowDivider()
                 }
                 ListRow(
-                    title = "其他应用…",
-                    subtitle = "手动填包名或服务组件，用该应用自己的助理入口",
+                    title = stringResource(R.string.target_other_app_title),
+                    subtitle = stringResource(R.string.target_other_app_subtitle),
                     icon = Icons.Rounded.Add,
                     trailing = { Chevron() },
                     onClick = onCustom,
@@ -977,14 +985,14 @@ private fun TargetScreen(
             }
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "三个入口各存一份目标；全部关掉 = 这个入口不唤醒任何助理（ColorOS 原生调用也一并关掉）。",
+                text = stringResource(R.string.target_footer_note),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             if (cornerHintVisible) {
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "底角这项改动要重启手机后桌面才会重新判断，重启前可能仍保留手势动画。",
+                    text = stringResource(R.string.target_corner_reboot_note),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -1023,22 +1031,27 @@ private fun CustomTargetScreen(
         AssistConfig.METHOD_ASSIST,
         AssistConfig.METHOD_INTENT,
     )
-    val methodLabels = listOf("自动", "ACTION_ASSIST", "显式 Intent")
+    val context = LocalContext.current
+    val methodLabels = listOf(
+        stringResource(R.string.method_auto),
+        "ACTION_ASSIST",
+        stringResource(R.string.method_explicit_intent),
+    )
     var methodIndex by remember {
         mutableIntStateOf(methods.indexOf(store.targetMethod(entry)).coerceAtLeast(0))
     }
     var pasted by remember { mutableStateOf("") }
     var menuOpen by remember { mutableStateOf(false) }
 
-    AppScreen(title = "自定义目标", snackbarHost = snackbarHost, onBack = onBack) { modifier ->
+    AppScreen(title = stringResource(R.string.title_custom_target), snackbarHost = snackbarHost, onBack = onBack) { modifier ->
         Column(modifier.padding(horizontal = 16.dp)) {
             Spacer(Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = pasted,
                 onValueChange = { pasted = it },
-                label = { Text("粘贴 Intent JSON") },
-                supportingText = { Text("把应用信息里那段 JSON 粘进来，点下面按钮自动填") },
+                label = { Text(stringResource(R.string.custom_paste_json_label)) },
+                supportingText = { Text(stringResource(R.string.custom_paste_json_hint)) },
                 leadingIcon = { Icon(Icons.Rounded.DataObject, contentDescription = null) },
                 minLines = 3,
                 modifier = Modifier.fillMaxWidth(),
@@ -1048,7 +1061,7 @@ private fun CustomTargetScreen(
                 onClick = {
                     val parsed = parseIntentJson(pasted)
                     if (parsed == null) {
-                        notify("没认出 JSON，检查一下格式")
+                        notify(context.getString(R.string.snack_json_invalid))
                     } else {
                         if (parsed.packageName.isNotEmpty()) {
                             packageName = parsed.packageName
@@ -1071,7 +1084,7 @@ private fun CustomTargetScreen(
                             builder.append(parsed.extra)
                         }
                         intentArgs = builder.toString()
-                        notify("已识别并填入，确认后按「保存目标」")
+                        notify(context.getString(R.string.snack_json_filled))
                     }
                 },
                 modifier = Modifier
@@ -1080,15 +1093,15 @@ private fun CustomTargetScreen(
             ) {
                 Icon(Icons.Rounded.Check, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("识别并填入")
+                Text(stringResource(R.string.btn_parse_and_fill))
             }
             Spacer(Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = packageName,
                 onValueChange = { packageName = it },
-                label = { Text("包名") },
-                supportingText = { Text("例如 com.heytap.speechassist") },
+                label = { Text(stringResource(R.string.field_package_name)) },
+                supportingText = { Text(stringResource(R.string.field_package_example)) },
                 leadingIcon = { Icon(Icons.Rounded.Apps, contentDescription = null) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -1099,7 +1112,7 @@ private fun CustomTargetScreen(
             OutlinedTextField(
                 value = component,
                 onValueChange = { component = it },
-                label = { Text("服务组件") },
+                label = { Text(stringResource(R.string.field_service_component)) },
                 supportingText = { Text("com.heytap.speechassist/.service.SpeechAssistService") },
                 leadingIcon = { Icon(Icons.Rounded.Widgets, contentDescription = null) },
                 singleLine = true,
@@ -1155,7 +1168,7 @@ private fun CustomTargetScreen(
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "自动：优先该应用声明的助理活动；显式 Intent：按下面的组件与参数启动",
+                    text = stringResource(R.string.field_method_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 16.dp),
@@ -1167,7 +1180,7 @@ private fun CustomTargetScreen(
             OutlinedTextField(
                 value = intentArgs,
                 onValueChange = { intentArgs = it },
-                label = { Text("Intent 参数") },
+                label = { Text(stringResource(R.string.field_intent_args)) },
                 supportingText = {
                     Text("action=heytap.intent.action.ACTIVATE_SPEECH_ASSIST · start_type=91")
                 },
@@ -1188,9 +1201,9 @@ private fun CustomTargetScreen(
                         method = methods[methodIndex],
                         args = intentArgs.trim(),
                     )
-                    notify("已保存：该入口改为自定义目标")
+                    notify(context.getString(R.string.snack_saved_custom))
                     notify(
-                        "已保存：" + store.mode(entry) +
+                        context.getString(R.string.snack_saved_prefix) + store.mode(entry) +
                             " · " + store.targetPackage(entry) +
                             " · " + store.targetComponent(entry) +
                             " · " + store.targetMethod(entry)
@@ -1203,7 +1216,7 @@ private fun CustomTargetScreen(
             ) {
                 Icon(Icons.Rounded.Check, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("保存目标")
+                Text(stringResource(R.string.btn_save_target))
             }
 
 
@@ -1234,7 +1247,7 @@ private fun AdvancedScreen(
     onSelectTab: (Int) -> Unit,
 ) {
     AppScreen(
-        title = "高级",
+        title = stringResource(R.string.nav_advanced),
         bottomBar = { AppBottomBar(selectedTab, onSelectTab) },
     ) { modifier ->
         Column(modifier.padding(horizontal = 16.dp)) {
@@ -1242,18 +1255,18 @@ private fun AdvancedScreen(
 
             SectionCard {
                 ListRow(
-                    title = "跳过识屏服务预绑定",
-                    subtitle = "长按手势条时不再白唤醒一次小布识屏服务",
+                    title = stringResource(R.string.adv_skip_ocr_title),
+                    subtitle = stringResource(R.string.adv_skip_ocr_subtitle),
                     icon = Icons.Rounded.Block,
                     trailing = { Toggle(skipOcrPreload, onSkipOcrPreloadChange) },
                 )
                 RowDivider()
                 ListRow(
-                    title = "解除页面级手势限制",
+                    title = stringResource(R.string.adv_unblock_page_title),
                     subtitle = if (AssistConfig.PAGE_FLAGS_SUPPORTED) {
-                        "设置这类页面也能用底角内滑"
+                        stringResource(R.string.adv_unblock_page_subtitle)
                     } else {
-                        "Android 17 起系统不再提供页面级屏蔽，此项无效"
+                        stringResource(R.string.adv_unblock_page_android17)
                     },
                     icon = Icons.Rounded.LockOpen,
                     enabled = AssistConfig.PAGE_FLAGS_SUPPORTED,
@@ -1267,29 +1280,29 @@ private fun AdvancedScreen(
                 )
                 RowDivider()
                 ListRow(
-                    title = "Google 应用机型伪装",
-                    subtitle = "伪装为 SM-S928B，解锁一圈即搜",
+                    title = stringResource(R.string.adv_spoof_google_title),
+                    subtitle = stringResource(R.string.adv_spoof_google_subtitle),
                     icon = Icons.Rounded.Smartphone,
                     trailing = { Toggle(fakeGoogleBuild, onFakeGoogleBuildChange) },
                 )
                 RowDivider()
                 ListRow(
-                    title = "隐藏手势条时保持长按",
-                    subtitle = "手势条隐藏后，底部原位置的长按仍能召唤助理",
+                    title = stringResource(R.string.adv_keep_handle_hidden_title),
+                    subtitle = stringResource(R.string.adv_keep_handle_hidden_subtitle),
                     icon = Icons.Rounded.TouchApp,
                     trailing = { Toggle(handleWhenBarHidden, onHandleWhenBarHiddenChange) },
                 )
                 RowDivider()
                 ListRow(
-                    title = "双击电源键改用 Google 钱包",
-                    subtitle = "双击电源键打开系统快捷钱包界面（Google 钱包刷卡），替代 ColorOS 钱包；需保持系统「双击电源键唤起快捷服务」开启",
+                    title = stringResource(R.string.adv_wallet_title),
+                    subtitle = stringResource(R.string.adv_wallet_subtitle),
                     icon = Icons.Rounded.AccountBalanceWallet,
                     trailing = { Toggle(doublePressWallet, onDoublePressWalletChange) },
                 )
                 RowDivider()
                 ListRow(
-                    title = "隐藏桌面图标",
-                    subtitle = "隐藏后可从 LSPosed 模块页或系统设置的应用详情打开",
+                    title = stringResource(R.string.adv_hide_icon_title),
+                    subtitle = stringResource(R.string.adv_hide_icon_subtitle),
                     icon = Icons.Rounded.VisibilityOff,
                     trailing = { Toggle(hideLauncherIcon, onHideLauncherIconChange) },
                 )
